@@ -134,7 +134,7 @@ module.exports = grammar({
       choice(
         seq(
           choice("'", '"'),
-          /[0-9a-zA-Z_/\- ]*/,
+          /[0-9a-zA-Z_/\- .]*/,
           choice("'", '"')
         ),
         /[a-zA-Z_][a-zA-Z_/0-9]*/
