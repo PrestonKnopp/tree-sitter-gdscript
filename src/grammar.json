@@ -482,7 +482,7 @@
                   },
                   {
                     "type": "PATTERN",
-                    "value": "[0-9a-zA-Z_/\\- ]*"
+                    "value": "[0-9a-zA-Z_/\\- .]*"
                   },
                   {
                     "type": "CHOICE",

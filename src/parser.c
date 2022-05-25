@@ -1425,7 +1425,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == '<') ADVANCE(112);
       if (lookahead == '=') ADVANCE(73);
       if (lookahead == '>') ADVANCE(118);
-      if (lookahead == '@') ADVANCE(27);
+      if (lookahead == '@') ADVANCE(25);
       if (lookahead == '[') ADVANCE(83);
       if (lookahead == '\\') SKIP(44)
       if (lookahead == ']') ADVANCE(84);
@@ -1633,22 +1633,25 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 24:
       if (lookahead == '"' ||
-          lookahead == '\'') ADVANCE(25);
+          lookahead == '\'') ADVANCE(26);
       if (('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
           ('a' <= lookahead && lookahead <= 'z')) ADVANCE(68);
       END_STATE();
     case 25:
       if (lookahead == '"' ||
-          lookahead == '\'') ADVANCE(67);
-      if (lookahead == ' ' ||
-          lookahead == '-' ||
-          ('/' <= lookahead && lookahead <= '9') ||
-          ('A' <= lookahead && lookahead <= 'Z') ||
-          lookahead == '_' ||
-          ('a' <= lookahead && lookahead <= 'z')) ADVANCE(25);
+          lookahead == '\'') ADVANCE(27);
       END_STATE();
     case 26:
+      if (lookahead == '"' ||
+          lookahead == '\'') ADVANCE(67);
+      if (lookahead == ' ' ||
+          ('-' <= lookahead && lookahead <= '9') ||
+          ('A' <= lookahead && lookahead <= 'Z') ||
+          lookahead == '_' ||
+          ('a' <= lookahead && lookahead <= 'z')) ADVANCE(26);
+      END_STATE();
+    case 27:
       if (lookahead == '"' ||
           lookahead == '\'') ADVANCE(66);
       if (lookahead == ' ' ||
@@ -1656,11 +1659,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           ('/' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
-          ('a' <= lookahead && lookahead <= 'z')) ADVANCE(26);
-      END_STATE();
-    case 27:
-      if (lookahead == '"' ||
-          lookahead == '\'') ADVANCE(26);
+          ('a' <= lookahead && lookahead <= 'z')) ADVANCE(27);
       END_STATE();
     case 28:
       if (lookahead == '+' ||
@@ -1765,7 +1764,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == '<') ADVANCE(16);
       if (lookahead == '=') ADVANCE(72);
       if (lookahead == '>') ADVANCE(20);
-      if (lookahead == '@') ADVANCE(27);
+      if (lookahead == '@') ADVANCE(25);
       if (lookahead == '[') ADVANCE(83);
       if (lookahead == '\\') SKIP(46)
       if (lookahead == ']') ADVANCE(84);
