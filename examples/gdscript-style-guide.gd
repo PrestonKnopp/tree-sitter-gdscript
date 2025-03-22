@@ -1,3 +1,5 @@
+# Excerpted from:
+# https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html
 class_name StateMachine
 extends Node
 ## Hierarchical State machine for the player.
