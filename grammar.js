@@ -599,7 +599,7 @@ module.exports = grammar({
     conditional_expression: ($) =>
       prec.right(
         PREC.conditional,
-        seq($._expression, "if", $._expression, "else", $._expression),
+        seq(field("left", $._expression), "if", field("condition", $._expression), "else", field("right", $._expression)),
       ),
 
     parenthesized_expression: ($) =>
@@ -643,9 +643,11 @@ module.exports = grammar({
 
     pair: ($) =>
       seq(
-        choice(
-          seq(field("key", $._rhs_expression), ":"), // Lambdas are allowed here.
-          seq(field("key", $.identifier), "="),
+        field("key",
+          choice(
+            seq($._rhs_expression, ":"), // Lambdas are allowed here.
+            seq($.identifier, "="),
+          ),
         ),
         field("value", choice($._rhs_expression, $.pattern_binding)),
       ),
@@ -716,10 +718,10 @@ module.exports = grammar({
       seq(
         "func",
         optional(field("name", $.name)),
-        $.parameters,
+        field("parameters", $.parameters),
         optional($._return_type),
         ":",
-        $.body,
+        field("body", $.body),
       ),
 
     constructor_definition: ($) =>
