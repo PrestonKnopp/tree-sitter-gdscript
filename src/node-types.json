@@ -265,15 +265,22 @@
   {
     "type": "annotation",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "arguments",
-          "named": true
-        },
         {
           "type": "identifier",
           "named": true
@@ -398,15 +405,22 @@
   {
     "type": "attribute_call",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "arguments",
-          "named": true
-        },
         {
           "type": "identifier",
           "named": true
@@ -417,17 +431,24 @@
   {
     "type": "attribute_subscript",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "subscript_arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "subscript_arguments",
           "named": true
         }
       ]
@@ -481,15 +502,22 @@
   {
     "type": "base_call",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "arguments",
-          "named": true
-        },
         {
           "type": "identifier",
           "named": true
@@ -631,7 +659,7 @@
   },
   {
     "type": "body",
-    "named": false,
+    "named": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -712,17 +740,24 @@
   {
     "type": "call",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
           "type": "_primary_expression",
-          "named": true
-        },
-        {
-          "type": "arguments",
           "named": true
         }
       ]
@@ -874,22 +909,22 @@
     "type": "constructor_definition",
     "named": true,
     "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      },
       "body": {
         "multiple": false,
         "required": true,
         "types": [
           {
             "type": "body",
-            "named": true
-          }
-        ]
-      },
-      "constructor_arguments": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "arguments",
             "named": true
           }
         ]
@@ -1111,7 +1146,7 @@
     "type": "export_variable_statement",
     "named": true,
     "fields": {
-      "export_arguments": {
+      "arguments": {
         "multiple": false,
         "required": false,
         "types": [
@@ -1939,17 +1974,24 @@
   {
     "type": "subscript",
     "named": true,
-    "fields": {},
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "subscript_arguments",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
           "type": "_primary_expression",
-          "named": true
-        },
-        {
-          "type": "subscript_arguments",
           "named": true
         }
       ]
