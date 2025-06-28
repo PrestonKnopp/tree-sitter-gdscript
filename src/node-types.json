@@ -423,7 +423,11 @@
       "required": true,
       "types": [
         {
-          "type": "_primary_expression",
+          "type": "_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -627,7 +631,7 @@
   },
   {
     "type": "body",
-    "named": true,
+    "named": false,
     "fields": {},
     "children": {
       "multiple": true,
