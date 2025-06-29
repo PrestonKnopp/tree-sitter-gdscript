@@ -59370,7 +59370,7 @@ static const TSParseActionEntry ts_parse_actions[] = {
   [2190] = {.entry = {.count = 1, .reusable = true}}, SHIFT(46),
   [2192] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_class_name_statement, 4, 0, 31),
   [2194] = {.entry = {.count = 1, .reusable = true}}, SHIFT(309),
-  [2196] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_augmented_assignment, 3, 0, 20),
+  [2196] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_augmented_assignment, 3, 0, 21),
   [2198] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_export_variable_statement, 3, 0, 14),
   [2200] = {.entry = {.count = 1, .reusable = true}}, SHIFT(28),
   [2202] = {.entry = {.count = 1, .reusable = true}}, SHIFT(933),
