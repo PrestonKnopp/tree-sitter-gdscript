@@ -1662,18 +1662,10 @@
     "type": "pair",
     "named": true,
     "fields": {
-      "key": {
-        "multiple": true,
+      "left": {
+        "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "=",
-            "named": false
-          },
           {
             "type": "_expression",
             "named": true
