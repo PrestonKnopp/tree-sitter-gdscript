@@ -192,7 +192,10 @@ module.exports = grammar({
     // Higher precedence is required to avoid conflicts with the "in" keyword in
     // $.for_statement.
     type: ($) =>
-      prec(PREC.type, choice($.attribute, $.identifier, $.subscript)),
+      prec(
+        PREC.type,
+        choice($.attribute, $.identifier, $.subscript, $.type_subscript),
+      ),
 
     // -----------------------------------------------------------------------------
     // -                                  Statements                               -
@@ -678,12 +681,18 @@ module.exports = grammar({
     // -- Accessors
     subscript_arguments: ($) =>
       seq("[", trailCommaSep1($._rhs_expression), "]"),
+    type_subscript_arguments: ($) => seq("[", trailCommaSep1($.type), "]"),
     subscript: ($) =>
       // The high precedence resolves ambiguity when parsing a definition
       // followed by code on the same line like class C: var x = my_array[0]
       prec(
         PREC.attribute,
         seq($._primary_expression, field("arguments", $.subscript_arguments)),
+      ),
+    type_subscript: ($) =>
+      prec(
+        PREC.type + 1,
+        seq($.identifier, field("arguments", $.type_subscript_arguments)),
       ),
 
     attribute_call: ($) =>

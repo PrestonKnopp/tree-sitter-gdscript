@@ -11,19 +11,21 @@ var a3: Array[int]
   (variable_statement
   (name)
   (type
-    (subscript
+    (type_subscript
     (identifier)
-    (subscript_arguments
-      (attribute
-        (identifier)
-        (identifier))))))
+    (type_subscript_arguments
+      (type
+        (attribute
+          (identifier)
+          (identifier)))))))
   (variable_statement
   (name)
   (type
-    (subscript
+    (type_subscript
     (identifier)
-    (subscript_arguments
-      (identifier))))))
+    (type_subscript_arguments
+      (type
+        (identifier)))))))
 
 ============================================
 Static Variable Statements

@@ -676,6 +676,10 @@
           {
             "type": "SYMBOL",
             "name": "subscript"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "type_subscript"
           }
         ]
       }
@@ -3773,6 +3777,61 @@
         }
       ]
     },
+    "type_subscript_arguments": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "type"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "type"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ","
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
     "subscript": {
       "type": "PREC",
       "value": 18,
@@ -3789,6 +3848,27 @@
             "content": {
               "type": "SYMBOL",
               "name": "subscript_arguments"
+            }
+          }
+        ]
+      }
+    },
+    "type_subscript": {
+      "type": "PREC",
+      "value": 21,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "SYMBOL",
+              "name": "type_subscript_arguments"
             }
           }
         ]

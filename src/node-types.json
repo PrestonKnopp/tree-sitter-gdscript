@@ -2237,6 +2237,51 @@
         {
           "type": "subscript",
           "named": true
+        },
+        {
+          "type": "type_subscript",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_subscript",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_subscript_arguments",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_subscript_arguments",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
         }
       ]
     }

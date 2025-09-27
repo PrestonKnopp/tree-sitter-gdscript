@@ -72,3 +72,78 @@ func test():
           (attribute_call
             (identifier)
             arguments: (arguments)))))))
+
+============================================
+Functions: Typed collections in parameters and return types
+============================================
+
+func process_data(items: Array[String], mapping: Dictionary[int, String]) -> Dictionary[String, int]:
+	pass
+
+func get_nodes() -> Array[Node]:
+	return []
+
+func store_values(data: Dictionary[String, float]):
+	pass
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters
+      (typed_parameter
+        (identifier)
+        type: (type
+          (type_subscript
+            (identifier)
+            arguments: (type_subscript_arguments
+              (type
+                (identifier))))))
+      (typed_parameter
+        (identifier)
+        type: (type
+          (type_subscript
+            (identifier)
+            arguments: (type_subscript_arguments
+              (type
+                (identifier))
+              (type
+                (identifier)))))))
+    return_type: (type
+      (type_subscript
+        (identifier)
+        arguments: (type_subscript_arguments
+          (type
+            (identifier))
+          (type
+            (identifier)))))
+    body: (body
+      (pass_statement)))
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    return_type: (type
+      (type_subscript
+        (identifier)
+        arguments: (type_subscript_arguments
+          (type
+            (identifier)))))
+    body: (body
+      (return_statement
+        (array))))
+  (function_definition
+    name: (name)
+    parameters: (parameters
+      (typed_parameter
+        (identifier)
+        type: (type
+          (type_subscript
+            (identifier)
+            arguments: (type_subscript_arguments
+              (type
+                (identifier))
+              (type
+                (identifier)))))))
+    body: (body
+      (pass_statement))))
