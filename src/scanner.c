@@ -158,6 +158,33 @@ static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
 /**
+ * Check if the current lexer position matches a specific word.
+ * The lexer position is restored after checking.
+ * 
+ * @param lexer The lexer to check
+ * @param word The word to match against
+ * @return true if the word matches, false otherwise
+ */
+static bool check_for_word(TSLexer *lexer, const char *word) {
+    TSLexer saved_lexer = *lexer;
+    
+    uint32_t chars_to_check = 0;
+    uint32_t word_length = strlen(word);
+    
+    while (chars_to_check < word_length && lexer->lookahead == word[chars_to_check]) {
+        lexer->advance(lexer, true);
+        chars_to_check++;
+    }
+    
+    bool matches = (chars_to_check == word_length);
+    
+    // Restore lexer position
+    *lexer = saved_lexer;
+    
+    return matches;
+}
+
+/**
  * Skip whitespace characters and update indentation tracking.
  * 
  * @param lexer The lexer to advance
@@ -314,15 +341,49 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
 
             last_non_empty_indent = indent_length;
 
-            // Consume the entire comment line
-            while (lexer->lookahead && lexer->lookahead != '\n') {
-                skip(lexer);
+            // Store the comment's indentation for special handling of dedented comments
+            // for example:
+            // ```
+            // func example():
+            //     # This comment is indented to the function's level
+            // # this comment is dedented to column 0 but should be associated with the function
+            //     var x = 10
+            // # This comment is dedented to column 0 but should be associated with the function
+            // ```
+            uint32_t comment_indent_length = indent_length;
+            
+            // Check if this is a region marker - they should not be adjusted
+            bool is_region_marker = false;
+            if (comment_indent_length == 0) {
+                // Check for #region or #endregion at column 0
+                TSLexer saved_lexer = *lexer;
+                lexer->advance(lexer, true); // skip #
+                
+                // Check if the next characters are "region" or "endregion"
+                if (lexer->lookahead == 'r') {
+                    is_region_marker = check_for_word(lexer, "region");
+                } else if (lexer->lookahead == 'e') {
+                    is_region_marker = check_for_word(lexer, "endregion");
+                }
+                
+                // Restore position
+                *lexer = saved_lexer;
+            }
+            
+            // For dedented comments, adjust indentation to ensure they are parsed within the correct scope
+            // Only adjust regular comments (not region markers) that are at column 0 when we're inside a function
+            if (!is_region_marker && scanner->indents->len > 1 && comment_indent_length == 0) {
+                // Get the function-level indentation (assuming it's the first indent)
+                uint16_t function_indent_length = scanner->indents->data[1];
+                // Only adjust if we're inside a function (function_indent_length > 0)
+                if (function_indent_length > 0) {
+                    // This is a dedented comment at column 0 inside a function
+                    indent_length = function_indent_length;
+                }
             }
 
-            if (lexer->lookahead == '\n') {
-                skip(lexer);
-                indent_length = 0;
-            }
+            // Don't consume the comment - let the grammar handle it as a token
+            break;
         } else if (lexer->lookahead == '\\') {
             skip(lexer);
             if (lexer->lookahead == '\r') {
