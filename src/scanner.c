@@ -372,13 +372,40 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
             
             // For dedented comments, adjust indentation to ensure they are parsed within the correct scope
             // Only adjust regular comments (not region markers) that are at column 0 when we're inside a function
+            // AND only if this appears to be a stray comment within the function scope rather than a top-level comment
             if (!is_region_marker && scanner->indents->len > 1 && comment_indent_length == 0) {
                 // Get the function-level indentation (assuming it's the first indent)
                 uint16_t function_indent_length = scanner->indents->data[1];
                 // Only adjust if we're inside a function (function_indent_length > 0)
+                // AND this is likely a comment that belongs to the function (not a top-level docstring)
                 if (function_indent_length > 0) {
-                    // This is a dedented comment at column 0 inside a function
-                    indent_length = function_indent_length;
+                    // Look ahead to see what comes after this comment
+                    TSLexer saved_lexer = *lexer;
+                    
+                    // Skip the comment line
+                    while (lexer->lookahead && lexer->lookahead != '\n') {
+                        lexer->advance(lexer, true);
+                    }
+
+                    if (lexer->lookahead == '\n') {
+                        lexer->advance(lexer, true);
+                    }
+                    
+                    // Skip whitespace and see what's next
+                    uint32_t next_indent = 0;
+                    while (skip_whitespace(lexer, &next_indent, NULL)) {
+                        // continue
+                    }
+                    
+                    // Restore lexer position
+                    *lexer = saved_lexer;
+                    
+                    // Only adjust if the next content is NOT at the top level (indent 0)
+                    // This prevents docstring-style comments from being pulled into functions
+                    if (next_indent > 0) {
+                        // This is a dedented comment at column 0 inside a function
+                        indent_length = function_indent_length;
+                    }
                 }
             }
 
