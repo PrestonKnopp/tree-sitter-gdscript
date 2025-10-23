@@ -165,21 +165,15 @@ static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
  * @param word The word to match against
  * @return true if the word matches, false otherwise
  */
-static bool check_for_word(TSLexer *lexer, const char *word) {
-    TSLexer saved_lexer = *lexer;
+static bool lookahead_string(TSLexer *lexer, const char *string) {
+    const char *cursor = string;
     
-    uint32_t chars_to_check = 0;
-    uint32_t word_length = strlen(word);
-    
-    while (chars_to_check < word_length && lexer->lookahead == word[chars_to_check]) {
-        lexer->advance(lexer, true);
-        chars_to_check++;
+    while (*cursor && lexer->lookahead == *cursor) {
+        skip(lexer);
+        cursor++;
     }
     
-    bool matches = (chars_to_check == word_length);
-    
-    // Restore lexer position
-    *lexer = saved_lexer;
+    bool matches = (*cursor == '\0');
     
     return matches;
 }
@@ -356,18 +350,14 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
             bool is_region_marker = false;
             if (comment_indent_length == 0) {
                 // Check for #region or #endregion at column 0
-                TSLexer saved_lexer = *lexer;
-                lexer->advance(lexer, true); // skip #
+                skip(lexer); // skip #
                 
                 // Check if the next characters are "region" or "endregion"
                 if (lexer->lookahead == 'r') {
-                    is_region_marker = check_for_word(lexer, "region");
+                    is_region_marker = lookahead_string(lexer, "region");
                 } else if (lexer->lookahead == 'e') {
-                    is_region_marker = check_for_word(lexer, "endregion");
+                    is_region_marker = lookahead_string(lexer, "endregion");
                 }
-                
-                // Restore position
-                *lexer = saved_lexer;
             }
             
             // For dedented comments, adjust indentation to ensure they are parsed within the correct scope
@@ -380,15 +370,14 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
                 // AND this is likely a comment that belongs to the function (not a top-level docstring)
                 if (function_indent_length > 0) {
                     // Look ahead to see what comes after this comment
-                    TSLexer saved_lexer = *lexer;
                     
                     // Skip the comment line
                     while (lexer->lookahead && lexer->lookahead != '\n') {
-                        lexer->advance(lexer, true);
+                        skip(lexer);
                     }
 
                     if (lexer->lookahead == '\n') {
-                        lexer->advance(lexer, true);
+                        skip(lexer);
                     }
                     
                     // Skip whitespace and see what's next
@@ -396,9 +385,6 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
                     while (skip_whitespace(lexer, &next_indent, NULL)) {
                         // continue
                     }
-                    
-                    // Restore lexer position
-                    *lexer = saved_lexer;
                     
                     // Only adjust if the next content is NOT at the top level (indent 0)
                     // This prevents docstring-style comments from being pulled into functions
