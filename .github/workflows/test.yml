@@ -5,6 +5,7 @@ on:
     paths:
       - 'grammar.js'
       - 'corpus/**'
+      - 'src/scanner.c'
   workflow_dispatch:
 
 jobs:
@@ -15,8 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - run: |
-          node --version
-          npm --version
-      - run: npm ci --include=dev --include=optional --include=peer
-      - run: npm test
+      - run: npm ci --include=peer
+      - run: npm run versions
+      - run: npm run test

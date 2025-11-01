@@ -11,31 +11,20 @@ on:
     tags: [v*]
 
 jobs:
-
   build_native_binaries:
     strategy:
       matrix:
-        # Use macos-14 for arm, however the artifact upload name conflicts with
-        # macos-latest. There's probably a way to crossbuild for arm with
-        # prebuildify.
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-15-intel, macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      # Why is npm only occassionally installing peer dependencies?
-      # I cannot get consistent peer dependency installs with the same command runs.
-      # Should I always explicitly run npm i tree-sitter? The general consensus is yes.
-      # But then, why does it install peer deps sometimes?
-      - run: |
-          node --version
-          npm --version
-      - run: npm ci --include=peer --include=optional --include=dev
-      - run: npm i tree-sitter
+      - run: npm ci --include=peer
       - run: npm run versions
-      - run: npm test
+      - run: npm run test
+      - run: npm run testNode
       - run: npm run prebuild
       # upload-artifact@v4 requires each artifact name to be unique.
       - uses: actions/upload-artifact@v4
@@ -44,10 +33,9 @@ jobs:
           path: prebuilds
           retention-days: 1
 
-
   publish_npm:
     needs: build_native_binaries
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
