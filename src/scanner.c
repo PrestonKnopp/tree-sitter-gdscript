@@ -158,6 +158,27 @@ static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
 /**
+ * Check if the current lexer position matches a specific word.
+ * The lexer position is restored after checking.
+ * 
+ * @param lexer The lexer to check
+ * @param word The word to match against
+ * @return true if the word matches, false otherwise
+ */
+static bool lookahead_string(TSLexer *lexer, const char *string) {
+    const char *cursor = string;
+    
+    while (*cursor && lexer->lookahead == *cursor) {
+        skip(lexer);
+        cursor++;
+    }
+    
+    bool matches = (*cursor == '\0');
+    
+    return matches;
+}
+
+/**
  * Skip whitespace characters and update indentation tracking.
  * 
  * @param lexer The lexer to advance
@@ -314,15 +335,68 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
 
             last_non_empty_indent = indent_length;
 
-            // Consume the entire comment line
-            while (lexer->lookahead && lexer->lookahead != '\n') {
-                skip(lexer);
+            // Store the comment's indentation for special handling of dedented comments
+            // for example:
+            // ```
+            // func example():
+            //     # This comment is indented to the function's level
+            // # this comment is dedented to column 0 but should be associated with the function
+            //     var x = 10
+            // # This comment is dedented to column 0 but should be associated with the function
+            // ```
+            uint32_t comment_indent_length = indent_length;
+            
+            // Check if this is a region marker - they should not be adjusted
+            bool is_region_marker = false;
+            if (comment_indent_length == 0) {
+                // Check for #region or #endregion at column 0
+                skip(lexer); // skip #
+                
+                // Check if the next characters are "region" or "endregion"
+                if (lexer->lookahead == 'r') {
+                    is_region_marker = lookahead_string(lexer, "region");
+                } else if (lexer->lookahead == 'e') {
+                    is_region_marker = lookahead_string(lexer, "endregion");
+                }
+            }
+            
+            // For dedented comments, adjust indentation to ensure they are parsed within the correct scope
+            // Only adjust regular comments (not region markers) that are at column 0 when we're inside a function
+            // AND only if this appears to be a stray comment within the function scope rather than a top-level comment
+            if (!is_region_marker && scanner->indents->len > 1 && comment_indent_length == 0) {
+                // Get the function-level indentation (assuming it's the first indent)
+                uint16_t function_indent_length = scanner->indents->data[1];
+                // Only adjust if we're inside a function (function_indent_length > 0)
+                // AND this is likely a comment that belongs to the function (not a top-level docstring)
+                if (function_indent_length > 0) {
+                    // Look ahead to see what comes after this comment
+                    
+                    // Skip the comment line
+                    while (lexer->lookahead && lexer->lookahead != '\n') {
+                        skip(lexer);
+                    }
+
+                    if (lexer->lookahead == '\n') {
+                        skip(lexer);
+                    }
+                    
+                    // Skip whitespace and see what's next
+                    uint32_t next_indent = 0;
+                    while (skip_whitespace(lexer, &next_indent, NULL)) {
+                        // continue
+                    }
+                    
+                    // Only adjust if the next content is NOT at the top level (indent 0)
+                    // This prevents docstring-style comments from being pulled into functions
+                    if (next_indent > 0) {
+                        // This is a dedented comment at column 0 inside a function
+                        indent_length = function_indent_length;
+                    }
+                }
             }
 
-            if (lexer->lookahead == '\n') {
-                skip(lexer);
-                indent_length = 0;
-            }
+            // Don't consume the comment - let the grammar handle it as a token
+            break;
         } else if (lexer->lookahead == '\\') {
             skip(lexer);
             if (lexer->lookahead == '\r') {
