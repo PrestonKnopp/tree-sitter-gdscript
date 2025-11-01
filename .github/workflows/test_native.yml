@@ -1,0 +1,19 @@
+name: Test Native
+
+on:
+  push:
+    tags: [v*]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: npm ci --include=peer
+      - run: npm run versions
+      - run: npm run test
+      - run: npm run testNode
