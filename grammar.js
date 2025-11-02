@@ -205,11 +205,7 @@ module.exports = grammar({
         $._simple_statements,
         $._newline,
         $._body_end,
-        seq(
-          $._indent,
-          repeat($._statement),
-          choice($._body_end, $._dedent),
-        ),
+        seq($._indent, repeat($._statement), choice($._body_end, $._dedent)),
       ),
 
     // Simple statements
@@ -450,11 +446,7 @@ module.exports = grammar({
         $._class_member,
         $._newline,
         $._body_end,
-        seq(
-          $._indent,
-          repeat($._class_member),
-          choice($._body_end, $._dedent),
-        ),
+        seq($._indent, repeat($._class_member), choice($._body_end, $._dedent)),
       ),
 
     // A class body can only directly contain class members. Then these class
@@ -836,11 +828,7 @@ module.exports = grammar({
         ),
       ),
 
-    variadic_parameter: ($) =>
-      seq(
-        "...",
-        $._parameters,
-      ),
+    variadic_parameter: ($) => seq("...", $._parameters),
 
     _parameters: ($) =>
       choice(
