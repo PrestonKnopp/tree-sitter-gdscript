@@ -3,6 +3,9 @@ tree-sitter-gdscript
 
 GDScript grammar for [tree-sitter][].
 
+- https://www.npmjs.com/package/tree-sitter-gdscript
+- https://crates.io/crates/tree-sitter-gdscript
+
 ## Latest Godot Commit Syntactically Synced
 
 Note: *Some commits may have been missed.*
@@ -33,7 +36,7 @@ git log --oneline --no-merges modules/gdscript
   1. See above for running tests.
   1. `npm run format`
   1. Commit changes.
-     - If commit is an issue fix, prefix message with `fix(#<issue-number>):`
+     - If commit is an issue fix, prefix message with `fix #<issue-number>:`
      - List the rules changed in commit message.
      - Note what rules need to be updated in [nvim-treesitter][] queries.
   1. Commit generated files with the latest non-wip commit.
@@ -41,8 +44,11 @@ git log --oneline --no-merges modules/gdscript
 - Release
   1. Manually edit version in package files: CMakeLists.txt, Cargo.toml,
      Makefile, pyproject.toml, tree-sitter.json
-  1. `npm version <major, minor, patch> -m "<> version bump"`
-  1. `git push --follow-tags`
+  1. `npm version --git-tag-version false <major, minor, patch>`
+  1. `git tag -a v<version>`
+  1. `git push && git push --tags`
+  1. `cargo package`
+  1. `cargo publish`
 
 Note: `node-gyp-build` will check for binaries in both `build` and `prebuilds`
 directories.
