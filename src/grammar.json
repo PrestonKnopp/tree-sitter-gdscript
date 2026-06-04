@@ -1,5 +1,4 @@
 {
-  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "gdscript",
   "word": "_identifier",
   "rules": {
@@ -659,6 +658,93 @@
         ]
       }
     },
+    "_type_dot": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[ \\t]*\\.[ \\t]*"
+      }
+    },
+    "_type_identifier": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[a-zA-Z_][a-zA-Z_0-9]*"
+      }
+    },
+    "_subtype_sequence": {
+      "type": "PREC",
+      "value": 20,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          {
+            "type": "REPEAT1",
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_type_dot"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_type_identifier"
+                  },
+                  "named": true,
+                  "value": "identifier"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "_generic_type": {
+      "type": "PREC",
+      "value": 20,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_subtype_sequence"
+                },
+                "named": true,
+                "value": "attribute"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              }
+            ]
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "SYMBOL",
+              "name": "subscript_arguments"
+            }
+          }
+        ]
+      }
+    },
+    "_string_based_type_definition": {
+      "type": "SYMBOL",
+      "name": "attribute"
+    },
     "type": {
       "type": "PREC",
       "value": 20,
@@ -666,16 +752,26 @@
         "type": "CHOICE",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "attribute"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_subtype_sequence"
+            },
+            "named": true,
+            "value": "attribute"
           },
           {
             "type": "SYMBOL",
             "name": "identifier"
           },
           {
-            "type": "SYMBOL",
-            "name": "subscript"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_generic_type"
+            },
+            "named": true,
+            "value": "subscript"
           }
         ]
       }
@@ -1806,6 +1902,15 @@
           {
             "type": "CHOICE",
             "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_string_based_type_definition"
+                },
+                "named": true,
+                "value": "type"
+              },
               {
                 "type": "SYMBOL",
                 "name": "string"

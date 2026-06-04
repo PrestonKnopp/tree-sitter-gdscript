@@ -189,10 +189,51 @@ module.exports = grammar({
     // -                                     Type                                  -
     // -----------------------------------------------------------------------------
 
+    // In type hints, dotted type segments can contain spaces around the dot,
+    // but they cannot cross newlines.
+    _type_dot: (_) => token.immediate(/[ \t]*\.[ \t]*/),
+    // Introducing a special case for type identifiers to avoid regressions. The
+    // default _identifier type allows swallowing newlines around it, but we
+    // want to avoid that in type hints as in case of parse errors the parser
+    // ends up eagerly consuming tokens beyond the type hint boundary, which can
+    // swallow other top-level definitions.
+    _type_identifier: (_) => token.immediate(/[a-zA-Z_][a-zA-Z_0-9]*/),
+
+    // A type sequence like ParentClass.InnerType
+    _subtype_sequence: ($) =>
+      prec(
+        PREC.type,
+        seq(
+          $.identifier,
+          repeat1(seq($._type_dot, alias($._type_identifier, $.identifier))),
+        ),
+      ),
+
+    // A type with brackets like Array[String] or Dictionary[Vector2i, Unit]
+    _generic_type: ($) =>
+      prec(
+        PREC.type,
+        seq(
+          choice(alias($._subtype_sequence, $.attribute), $.identifier),
+          field("arguments", $.subscript_arguments),
+        ),
+      ),
+
+    // This represents the path based type definitions represented by strings
+    // like in `extends "MyClass.gd"
+    _string_based_type_definition: ($) => $.attribute,
+
     // Higher precedence is required to avoid conflicts with the "in" keyword in
     // $.for_statement.
     type: ($) =>
-      prec(PREC.type, choice($.attribute, $.identifier, $.subscript)),
+      prec(
+        PREC.type,
+        choice(
+          alias($._subtype_sequence, $.attribute),
+          $.identifier,
+          alias($._generic_type, $.subscript),
+        ),
+      ),
 
     // -----------------------------------------------------------------------------
     // -                                  Statements                               -
@@ -390,7 +431,15 @@ module.exports = grammar({
     extends_statement: ($) =>
       prec(
         PREC.type,
-        seq(optional($.annotations), "extends", choice($.string, $.type)),
+        seq(
+          optional($.annotations),
+          "extends",
+          choice(
+            alias($._string_based_type_definition, $.type),
+            $.string,
+            $.type,
+          ),
+        ),
       ),
 
     _compound_statement: ($) =>

@@ -1,0 +1,33 @@
+=====================================
+Stray dot after variable name (no type)
+=====================================
+
+var invalid_variable .
+
+func next():
+	pass
+
+---
+
+(source
+  (ERROR
+    (variable_statement
+      (name)))
+  (function_definition
+    (name)
+    (parameters)
+    (body
+      (pass_statement))))
+
+=====================================
+Stray dot after type annotation
+=====================================
+
+var invalid_variable: bool .
+
+---
+
+(source
+  (ERROR
+    (name)
+    (identifier)))
