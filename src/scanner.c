@@ -1,7 +1,5 @@
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 #include "tree_sitter/parser.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -12,11 +10,6 @@
     (vec)->data = tmp;                                                         \
     (vec)->cap = (_cap);
 
-#define VEC_GROW(vec, _cap)                                                    \
-    if ((vec)->cap < (_cap)) {                                                 \
-        VEC_RESIZE((vec), (_cap));                                             \
-    }
-
 #define VEC_PUSH(vec, el)                                                      \
     if ((vec)->cap == (vec)->len) {                                            \
         VEC_RESIZE((vec), MAX(16, (vec)->len * 2));                            \
@@ -24,9 +17,6 @@
     (vec)->data[(vec)->len++] = (el);
 
 #define VEC_POP(vec) (vec)->len--;
-
-#define VEC_NEW                                                                \
-    { .len = 0, .cap = 0, .data = NULL }
 
 #define VEC_BACK(vec) ((vec)->data[(vec)->len - 1])
 
@@ -52,42 +42,31 @@ enum TokenType {
     CLOSE_BRACKET,
     CLOSE_BRACE,
     COMMA,
-    /* COLON, // See grammar.js externals */
     BODY_END,
 };
 
-typedef enum {
+enum {
     SingleQuote = 1 << 0,
     DoubleQuote = 1 << 1,
     Triple = 1 << 2,
     Raw = 1 << 3,
-    Name = 1 << 4,
-    NodePath = 1 << 5,
-} Flags;
+};
 
 typedef struct {
     char flags;
-} Delimiter;
+} StringDelimiter;
 
-static inline Delimiter new_delimiter() { return (Delimiter){0}; }
+static inline StringDelimiter new_string_delimiter() { return (StringDelimiter){0}; }
 
-static inline bool is_triple(Delimiter *delimiter) {
+static inline bool is_multiline_string_delimiter(StringDelimiter *delimiter) {
     return delimiter->flags & Triple;
 }
 
-static inline bool is_raw(Delimiter *delimiter) {
+static inline bool is_raw_string_delimiter(StringDelimiter *delimiter) {
     return delimiter->flags & Raw;
 }
 
-static inline bool is_name(Delimiter *delimiter) {
-    return delimiter->flags & Name;
-}
-
-static inline bool is_node_path(Delimiter *delimiter) {
-    return delimiter->flags & NodePath;
-}
-
-static inline int32_t end_character(Delimiter *delimiter) {
+static inline int32_t get_expected_string_end_char(StringDelimiter *delimiter) {
     if (delimiter->flags & SingleQuote) {
         return '\'';
     }
@@ -97,23 +76,15 @@ static inline int32_t end_character(Delimiter *delimiter) {
     return 0;
 }
 
-static inline void set_triple(Delimiter *delimiter) {
+static inline void set_triple(StringDelimiter *delimiter) {
     delimiter->flags |= Triple;
 }
 
-static inline void set_raw(Delimiter *delimiter) {
+static inline void set_raw(StringDelimiter *delimiter) {
     delimiter->flags |= Raw;
 }
 
-static inline void set_name(Delimiter *delimiter) {
-    delimiter->flags |= Name;
-}
-
-static inline void set_node_path(Delimiter *delimiter) {
-    delimiter->flags |= NodePath;
-}
-
-static inline void set_end_character(Delimiter *delimiter, int32_t character) {
+static inline void set_end_character(StringDelimiter *delimiter, int32_t character) {
     switch (character) {
         case '\'':
             delimiter->flags |= SingleQuote;
@@ -126,16 +97,6 @@ static inline void set_end_character(Delimiter *delimiter, int32_t character) {
     }
 }
 
-static inline const char *delimiter_string(Delimiter *delimiter) {
-    if (delimiter->flags & SingleQuote) {
-        return "\'";
-    }
-    if (delimiter->flags & DoubleQuote) {
-        return "\"";
-    }
-    return "";
-}
-
 typedef struct {
     uint32_t len;
     uint32_t cap;
@@ -143,14 +104,8 @@ typedef struct {
 } indent_vec;
 
 typedef struct {
-    uint32_t len;
-    uint32_t cap;
-    Delimiter *data;
-} delimiter_vec;
-
-typedef struct {
-    indent_vec *indents;
-    delimiter_vec *delimiters;
+    indent_vec indents;
+    StringDelimiter delimiter;
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
@@ -185,7 +140,7 @@ static inline bool skip_whitespace(TSLexer *lexer, uint32_t *indent_length,
     return false;
 }
 
-static inline void handle_quote(TSLexer *lexer, Delimiter *delimiter, char quote) {
+static inline void handle_quote(TSLexer *lexer, StringDelimiter *delimiter, char quote) {
     set_end_character(delimiter, quote);
     advance(lexer);
     lexer->mark_end(lexer);
@@ -206,22 +161,19 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
 
     bool error_recovery_mode =
         valid_symbols[STRING_CONTENT] && valid_symbols[INDENT];
-    bool within_brackets = valid_symbols[CLOSE_BRACE] ||
-                           valid_symbols[CLOSE_PAREN] ||
-                           valid_symbols[CLOSE_BRACKET];
 
-    if (valid_symbols[STRING_CONTENT] && scanner->delimiters->len > 0 &&
+    if (valid_symbols[STRING_CONTENT] && scanner->delimiter.flags != 0 &&
         !error_recovery_mode) {
-        Delimiter delimiter = VEC_BACK(scanner->delimiters);
-        int32_t end_char = end_character(&delimiter);
+        StringDelimiter delimiter = scanner->delimiter;
+        int32_t expected_string_end_delimiter_char = get_expected_string_end_char(&delimiter);
         bool has_content = false;
         while (lexer->lookahead) {
             if (lexer->lookahead == '\\') {
-                if (is_raw(&delimiter)) {
+                if (is_raw_string_delimiter(&delimiter)) {
                     // Step over the backslash.
                     lexer->advance(lexer, false);
                     // Step over any escaped quotes.
-                    if (lexer->lookahead == end_character(&delimiter) ||
+                    if (lexer->lookahead == get_expected_string_end_char(&delimiter) ||
                         lexer->lookahead == '\\') {
                         lexer->advance(lexer, false);
                     }
@@ -231,19 +183,21 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
                     lexer->result_symbol = STRING_CONTENT;
                     return has_content;
                 }
-            } else if (lexer->lookahead == end_char) {
-                if (is_triple(&delimiter)) {
+            } else if (lexer->lookahead == expected_string_end_delimiter_char) {
+                if (is_multiline_string_delimiter(&delimiter)) {
+                    // We're in a multiline string, the delimiter is ''' or """
+                    // so we need to scan all 3.
                     lexer->mark_end(lexer);
                     lexer->advance(lexer, false);
-                    if (lexer->lookahead == end_char) {
+                    if (lexer->lookahead == expected_string_end_delimiter_char) {
                         lexer->advance(lexer, false);
-                        if (lexer->lookahead == end_char) {
+                        if (lexer->lookahead == expected_string_end_delimiter_char) {
                             if (has_content) {
                                 lexer->result_symbol = STRING_CONTENT;
                             } else {
                                 lexer->advance(lexer, false);
                                 lexer->mark_end(lexer);
-                                VEC_POP(scanner->delimiters);
+                                scanner->delimiter = new_string_delimiter();
                                 lexer->result_symbol = STRING_END;
                             }
                             return true;
@@ -260,7 +214,7 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
                     lexer->result_symbol = STRING_CONTENT;
                 } else {
                     lexer->advance(lexer, false);
-                    VEC_POP(scanner->delimiters);
+                    scanner->delimiter = new_string_delimiter();
                     lexer->result_symbol = STRING_END;
                 }
                 lexer->mark_end(lexer);
@@ -272,9 +226,6 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
     }
 
     lexer->mark_end(lexer);
-
-
-
     bool found_end_of_line = false;
     uint32_t indent_length = 0;
     int32_t first_comment_indent_length = -1;
@@ -327,12 +278,12 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
     }
 
     if (found_end_of_line) {
-        if (scanner->indents->len > 0) {
-            uint16_t current_indent_length = VEC_BACK(scanner->indents);
+        if (scanner->indents.len > 0) {
+            uint16_t current_indent_length = VEC_BACK(&scanner->indents);
 
             if (valid_symbols[INDENT] &&
                 indent_length > current_indent_length) {
-                VEC_PUSH(scanner->indents, indent_length);
+                VEC_PUSH(&scanner->indents, indent_length);
                 lexer->result_symbol = INDENT;
                 return true;
             }
@@ -340,7 +291,7 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
             if (valid_symbols[DEDENT] &&
                 indent_length < current_indent_length &&
                 first_comment_indent_length < (int32_t)current_indent_length) {
-                VEC_POP(scanner->indents);
+                VEC_POP(&scanner->indents);
                 lexer->result_symbol = DEDENT;
                 return true;
             }
@@ -358,7 +309,6 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
     if (
         // Guard against BODY_END tokens overriding valid tokens.
         !valid_symbols[COMMA] &&
-        /* !valid_symbols[COLON] && */
         !valid_symbols[CLOSE_PAREN] && !valid_symbols[CLOSE_BRACE] &&
         !valid_symbols[CLOSE_BRACKET] &&
 
@@ -370,13 +320,11 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
             lexer->lookahead == ')' || // args, params, paren expr
             lexer->lookahead == '}' || // dictionary (may not be needed)
             lexer->lookahead == ']'    // array
-            /* lexer->lookahead == ':'     // key-value pairs (breaks if
-               elses) */
         ) {
             // BODY_END tokens can take the place of a dedent. Therefore, we
             // should pop the stack when DEDENT is valid.
-            if (valid_symbols[DEDENT] && scanner->indents->len > 0) {
-                VEC_POP(scanner->indents);
+            if (valid_symbols[DEDENT] && scanner->indents.len > 0) {
+                VEC_POP(&scanner->indents);
             }
             lexer->result_symbol = BODY_END;
             return true;
@@ -387,41 +335,33 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
         (valid_symbols[STRING_START] ||
          valid_symbols[STRING_NAME_START] ||
          valid_symbols[NODE_PATH_START])) {
-        Delimiter delimiter = new_delimiter();
-
-        bool has_flags = true;
+        StringDelimiter delimiter = new_string_delimiter();
+        enum TokenType start_symbol = STRING_START;
+        bool has_prefix = true;
 
         switch (lexer->lookahead) {
             case 'r': set_raw(&delimiter); break;
-            case '&': set_name(&delimiter); break;
-            case '^': set_node_path(&delimiter); break;
+            case '&': start_symbol = STRING_NAME_START; break;
+            case '^': start_symbol = NODE_PATH_START; break;
 
             // For backward compatibility with 3.x versions
-            case '@': set_node_path(&delimiter); break;
-            default: has_flags = false; break;
+            case '@': start_symbol = NODE_PATH_START; break;
+            default: has_prefix = false; break;
         }
 
-        if (has_flags) advance(lexer);
+        if (has_prefix) advance(lexer);
 
         if (lexer->lookahead == '\'' || lexer->lookahead == '"') {
             handle_quote(lexer, &delimiter, lexer->lookahead);
         }
 
-        if (end_character(&delimiter)) {
-            VEC_PUSH(scanner->delimiters, delimiter);
-
-            if (is_node_path(&delimiter)) {
-                lexer->result_symbol = NODE_PATH_START;
-            } else if (is_name(&delimiter)) {
-                lexer->result_symbol = STRING_NAME_START;
-            } else {
-                lexer->result_symbol = STRING_START;
-            }
-
+        if (get_expected_string_end_char(&delimiter)) {
+            scanner->delimiter = delimiter;
+            lexer->result_symbol = start_symbol;
             return true;
         }
 
-        if (has_flags) {
+        if (has_prefix) {
             return false;
         }
     }
@@ -435,21 +375,12 @@ unsigned tree_sitter_gdscript_external_scanner_serialize(void *payload,
 
     size_t size = 0;
 
-    size_t delimiter_count = scanner->delimiters->len;
-    if (delimiter_count > UINT8_MAX) {
-        delimiter_count = UINT8_MAX;
-    }
-    buffer[size++] = (char)delimiter_count;
+    buffer[size++] = scanner->delimiter.flags;
 
-    if (delimiter_count > 0) {
-        memcpy(&buffer[size], scanner->delimiters->data, delimiter_count);
-    }
-    size += delimiter_count;
-
-    for (uint32_t iter = 1; iter < scanner->indents->len &&
+    for (uint32_t iter = 1; iter < scanner->indents.len &&
                             size + 1 < TREE_SITTER_SERIALIZATION_BUFFER_SIZE;
          ++iter) {
-        uint16_t indent = scanner->indents->data[iter];
+        uint16_t indent = scanner->indents.data[iter];
         buffer[size++] = (char)(indent & 0xff);
         buffer[size++] = (char)((indent >> 8) & 0xff);
     }
@@ -462,54 +393,41 @@ void tree_sitter_gdscript_external_scanner_deserialize(void *payload,
                                                        unsigned length) {
     Scanner *scanner = (Scanner *)payload;
 
-    VEC_CLEAR(scanner->delimiters);
-    VEC_CLEAR(scanner->indents);
-    VEC_PUSH(scanner->indents, 0);
+    VEC_CLEAR(&scanner->indents);
+    VEC_PUSH(&scanner->indents, 0);
+    scanner->delimiter = new_string_delimiter();
 
     if (length > 0) {
         size_t size = 0;
 
-        size_t delimiter_count = (uint8_t)buffer[size++];
-        if (delimiter_count > 0) {
-            VEC_GROW(scanner->delimiters, delimiter_count);
-            scanner->delimiters->len = delimiter_count;
-            memcpy(scanner->delimiters->data, &buffer[size], delimiter_count);
-            size += delimiter_count;
-        }
+        scanner->delimiter.flags = buffer[size++];
 
         // Deserialize the indents
         for (; size + 1 < length; size += 2) {
             uint16_t indent = (unsigned char)buffer[size] |
                               ((unsigned char)buffer[size + 1] << 8);
-            VEC_PUSH(scanner->indents, indent);
+            VEC_PUSH(&scanner->indents, indent);
         }
     }
 }
 
 void *tree_sitter_gdscript_external_scanner_create() {
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
-    _Static_assert(sizeof(Delimiter) == sizeof(char), "");
+    _Static_assert(sizeof(StringDelimiter) == sizeof(char), "");
 #else
     assert(sizeof(Delimiter) == sizeof(char));
 #endif
     Scanner *scanner = calloc(1, sizeof(Scanner));
     if (!scanner) {
-        // What is the tree-sitter idiomatic way to handle this?
-        // fprintf(stderr, "Failed to allocate memory for scanner\n");
         return NULL;
     }
 
-    scanner->indents = calloc(1, sizeof(indent_vec));
-    scanner->delimiters = calloc(1, sizeof(delimiter_vec));
     tree_sitter_gdscript_external_scanner_deserialize(scanner, NULL, 0);
     return scanner;
 }
 
 void tree_sitter_gdscript_external_scanner_destroy(void *payload) {
     Scanner *scanner = (Scanner *)payload;
-    VEC_FREE(scanner->indents);
-    VEC_FREE(scanner->delimiters);
-    free(scanner->indents);
-    free(scanner->delimiters);
+    VEC_FREE(&scanner->indents);
     free(scanner);
 }
