@@ -1,0 +1,11 @@
+# The sdist must be able to rebuild the extension from scratch. setuptools only
+# auto-includes the files named in Extension(sources=...), which covers
+# src/parser.c, src/scanner.c and the binding, but not the headers they include
+# or the typing marker files.
+recursive-include src/tree_sitter *.h
+recursive-include bindings/python *.pyi py.typed
+include grammar.js tree-sitter.json
+include LICENSE README.md
+
+prune examples
+prune test
