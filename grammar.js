@@ -145,9 +145,9 @@ module.exports = grammar({
     integer: ($) =>
       token(
         choice(
-          seq(choice("0x", "0X"), repeat1(/_?[A-Fa-f0-9]+/)),
-          seq(choice("0o", "0O"), repeat1(/_?[0-7]+/)),
-          seq(choice("0b", "0B"), repeat1(/_?[0-1]+/)),
+          seq(choice("0x", "0X"), repeat1(/[A-Fa-f0-9]+_?/)),
+          seq(choice("0o", "0O"), repeat1(/[0-7]+_?/)),
+          seq(choice("0b", "0B"), repeat1(/[0-1]+_?/)),
           repeat1(/[0-9]+_?/),
         ),
       ),
