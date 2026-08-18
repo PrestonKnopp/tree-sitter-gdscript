@@ -590,7 +590,7 @@ module.exports = grammar({
     // with pairs. This is also only valid in patterns and keeps the grammar a
     // bit simpler.
     pattern_binding: ($) => seq("var", $.identifier),
-    pattern_open_ending: ($) => "..",
+    pattern_open_ending: ($) => seq("..", optional(",")),
 
     // -----------------------------------------------------------------------------
     // -                                  Expressions                              -

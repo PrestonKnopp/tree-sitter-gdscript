@@ -1,4 +1,23 @@
 ============================================
+#92 Parse error when open-ended array/dictionary match pattern contains trailing comma
+============================================
+
+match []:
+    [ .., ]: pass
+
+---
+
+(source
+  (match_statement
+    value: (array)
+    body: (match_body
+      (pattern_section
+        (array
+          (pattern_open_ending))
+        body: (body
+          (pass_statement))))))
+
+============================================
 #76 Parsing error when there is a semicolon at the end of an @abstract function
 ============================================
 
