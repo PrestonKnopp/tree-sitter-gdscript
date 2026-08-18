@@ -1,4 +1,31 @@
 ============================================
+#89 Parse error when hex or binary number contains trailing separator
+============================================
+
+print(123_45_6_)
+print(0x1234_00_f_f_)
+print(0b1001_01_0_1_)
+
+---
+
+(source
+  (expression_statement
+    (call
+      (identifier)
+      arguments: (arguments
+        (integer))))
+  (expression_statement
+    (call
+      (identifier)
+      arguments: (arguments
+        (integer))))
+  (expression_statement
+    (call
+      (identifier)
+      arguments: (arguments
+        (integer)))))
+
+============================================
 #76 Parsing error when there is a semicolon at the end of an @abstract function
 ============================================
 
