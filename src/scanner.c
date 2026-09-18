@@ -614,6 +614,12 @@ void *tree_sitter_gdscript_external_scanner_create() {
 
     scanner->indents = calloc(1, sizeof(indent_vec));
     scanner->delimiters = calloc(1, sizeof(delimiter_vec));
+    if (!scanner->indents || !scanner->delimiters) {
+        free(scanner->indents);
+        free(scanner->delimiters);
+        free(scanner);
+        return NULL;
+    }
     tree_sitter_gdscript_external_scanner_deserialize(scanner, NULL, 0);
     return scanner;
 }
