@@ -170,6 +170,7 @@ module.exports = grammar({
           choice(
             seq(
               "$",
+              optional("%"),
               choice(
                 alias($.string, "value"),
                 seq(

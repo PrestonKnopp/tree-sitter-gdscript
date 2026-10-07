@@ -499,3 +499,19 @@ class_name Foo
     (type (identifier)))
   (class_name_statement
     name: (name)))
+
+
+==========================
+Get node with both $ and %
+==========================
+
+$%Character/Timer
+$%"Sprite2D"
+
+---
+
+(source
+  (expression_statement
+    (get_node))
+  (expression_statement
+    (get_node)))
