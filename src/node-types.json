@@ -1904,6 +1904,11 @@
     }
   },
   {
+    "type": "pattern_open_ending",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "pattern_section",
     "named": true,
     "fields": {
@@ -2580,6 +2585,10 @@
     "named": false
   },
   {
+    "type": "..",
+    "named": false
+  },
+  {
     "type": "...",
     "named": false
   },
@@ -2806,10 +2815,6 @@
   {
     "type": "pass",
     "named": false
-  },
-  {
-    "type": "pattern_open_ending",
-    "named": true
   },
   {
     "type": "puppet",
