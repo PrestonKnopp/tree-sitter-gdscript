@@ -394,7 +394,7 @@
                 "type": "REPEAT1",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_?[A-Fa-f0-9]+"
+                  "value": "[A-Fa-f0-9]+_?"
                 }
               }
             ]
@@ -419,7 +419,7 @@
                 "type": "REPEAT1",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_?[0-7]+"
+                  "value": "[0-7]+_?"
                 }
               }
             ]
@@ -444,7 +444,7 @@
                 "type": "REPEAT1",
                 "content": {
                   "type": "PATTERN",
-                  "value": "_?[0-1]+"
+                  "value": "[0-1]+_?"
                 }
               }
             ]
