@@ -551,10 +551,13 @@ module.exports = grammar({
         // as match blocks are expressions, we need to explicitly allow them
         // here. The pattern section body itself supports statements (thus annotations).
         repeat1(
-          seq(
-            optional(repeat(seq($.annotation, optional($._newline)))),
-            $.pattern_section,
-          ),
+          choice(
+            seq(
+              optional(repeat(seq($.annotation, optional($._newline)))),
+              $.pattern_section,
+            ),
+            $.pass_statement,
+          )
         ),
         $._dedent,
       ),

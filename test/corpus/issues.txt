@@ -515,3 +515,18 @@ $%"Sprite2D"
     (get_node))
   (expression_statement
     (get_node)))
+
+=====================
+Empty match statement
+=====================
+
+match x:
+	pass
+
+---
+
+(source
+  (match_statement
+  (identifier)
+  (match_body
+    (pass_statement))))
