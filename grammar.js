@@ -3,8 +3,11 @@ const PREC = {
   conditional: -1,
 
   parenthesized_expression: 1,
-  or: 3,
-  and: 4,
+  or: 2,
+  and: 3,
+  // `not` sits between the and/or keywords and comparison operators, so that
+  // `not a == 0` parses as `not (a == 0)` and `not a and b` as `(not a) and b`.
+  not: 4,
   in: 5,
   compare: 6,
   bitwise_or: 7,
@@ -694,7 +697,7 @@ module.exports = grammar({
 
     unary_operator: ($) =>
       choice(
-        prec(PREC.unary, seq(choice("not", "!"), $._primary_expression)),
+        prec(PREC.not, seq(choice("not", "!"), $._primary_expression)),
         prec(PREC.unary, seq("-", $._primary_expression)),
         prec(PREC.unary, seq("+", $._primary_expression)),
         prec(PREC.unary, seq("~", $._primary_expression)),

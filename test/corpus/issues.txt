@@ -530,3 +530,92 @@ match x:
   (identifier)
   (match_body
     (pass_statement))))
+
+=============================
+Not with comparison operators
+=============================
+
+func foo():
+	not false == 0
+	not false != true
+	not false < true
+	not false > true
+	not false <= true
+	not false >= true
+	not false in true
+	not not false == true
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    body: (body
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (integer))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (binary_operator
+            left: (false)
+            right: (true))))
+      (expression_statement
+        (unary_operator
+          (unary_operator
+            (binary_operator
+              left: (false)
+              right: (true))))))))
+
+=================================================
+Ensure that not has higher precedence than and/or
+=================================================
+
+func foo():
+	not false and true
+	not false or true
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    body: (body
+      (expression_statement
+        (binary_operator
+          left: (unary_operator
+            (false))
+          right: (true)))
+      (expression_statement
+        (binary_operator
+          left: (unary_operator
+            (false))
+          right: (true))))))
