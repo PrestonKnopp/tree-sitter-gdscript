@@ -1,0 +1,112 @@
+=====================================
+Dedented comment between a block header and its body
+=====================================
+
+func test() -> void:
+	if true:
+	# Alternative condition kept for debugging.
+		print("if body")
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    return_type: (type
+      (identifier))
+    body: (body
+      (if_statement
+        condition: (true)
+        body: (body
+          (comment)
+          (expression_statement
+            (call
+              (identifier)
+              arguments: (arguments
+                (string)))))))))
+
+=====================================
+Fully commented nested code preserves source columns
+=====================================
+
+#func _input(event: InputEvent) -> void:
+	#if event is InputEventMouseButton:
+		#if event.pressed:
+			#if event.button_index == MOUSE_BUTTON_RIGHT:
+				#print("test")
+
+---
+
+(source
+  (comment)
+  (comment)
+  (comment)
+  (comment)
+  (comment))
+
+=====================================
+Unindented region inside a function
+=====================================
+
+func test() -> void:
+	var first = 1
+#region unused code
+	#var second = 2
+#endregion
+	print(first)
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    return_type: (type
+      (identifier))
+    body: (body
+      (variable_statement
+        name: (name)
+        value: (integer))
+      (region_start
+        (region_label))
+      (comment)
+      (region_end)
+      (expression_statement
+        (call
+          (identifier)
+          arguments: (arguments
+            (identifier)))))))
+
+=====================================
+Unindented region inside a nested block
+=====================================
+
+func test() -> void:
+	if true:
+#region unused code
+		#var value = 1
+#endregion
+		print("if body")
+
+---
+
+(source
+  (function_definition
+    name: (name)
+    parameters: (parameters)
+    return_type: (type
+      (identifier))
+    body: (body
+      (if_statement
+        condition: (true)
+        body: (body
+          (region_start
+            (region_label))
+          (comment)
+          (region_end)
+          (expression_statement
+            (call
+              (identifier)
+              arguments: (arguments
+                (string)))))))))
