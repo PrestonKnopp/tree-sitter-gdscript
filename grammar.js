@@ -164,30 +164,17 @@ module.exports = grammar({
         repeat(choice($.escape_sequence, $._string_content)),
         alias($._string_end, '"'),
       ),
+    // the $ and % syntax supports strings between segments like $Sprite2D/"Timer"
+    _node_path_segment: ($) => choice($._identifier, alias($.string, "value")),
     get_node: ($) =>
       prec.right(
         seq(
           choice(
-            seq(
-              "$",
-              optional("%"),
-              choice(
-                alias($.string, "value"),
-                seq(
-                  optional("/"),
-                  $._identifier,
-                  repeat(seq("/", $._identifier)),
-                ),
-              ),
-            ),
-            seq(
-              "%",
-              choice(
-                alias($.string, "value"),
-                seq($._identifier, repeat(seq("/", $._identifier))),
-              ),
-            ),
+            seq("$", optional("%"), optional("/")),
+            "%",
           ),
+          $._node_path_segment,
+          repeat(seq("/", $._node_path_segment)),
         ),
       ),
 
@@ -557,7 +544,7 @@ module.exports = grammar({
               $.pattern_section,
             ),
             $.pass_statement,
-          )
+          ),
         ),
         $._dedent,
       ),

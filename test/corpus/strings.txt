@@ -596,6 +596,10 @@ are/a/horrible:person"""
 $ '''Punc/a\tree'''
 % '''\to/gather:wood'''
 
+# You can have string segments mixed with node identifiers.
+$"NodeName"/Timer
+$NodeName/"Timer/Sprite2D"
+
 # But these are not valid.
 # They should be a token.
 
@@ -655,6 +659,11 @@ var v = ^ ''''''
     (get_node (escape_sequence)))
   (expression_statement
     (get_node (escape_sequence)))
+  (comment)
+  (expression_statement
+    (get_node))
+  (expression_statement
+    (get_node))
   (comment)
   (comment)
   (variable_statement (name) (ERROR) (string))
