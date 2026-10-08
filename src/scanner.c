@@ -46,10 +46,10 @@ enum TokenType {
 };
 
 enum {
-    SingleQuote = 1 << 0,
-    DoubleQuote = 1 << 1,
-    Triple = 1 << 2,
-    Raw = 1 << 3,
+    QuoteSingle = 1 << 0,
+    QuoteDouble = 1 << 1,
+    QuoteTriple = 1 << 2,
+    QuoteRaw = 1 << 3,
 };
 
 typedef struct {
@@ -58,39 +58,23 @@ typedef struct {
 
 static inline StringDelimiter new_string_delimiter() { return (StringDelimiter){0}; }
 
-static inline bool is_multiline_string_delimiter(StringDelimiter *delimiter) {
-    return delimiter->flags & Triple;
-}
-
-static inline bool is_raw_string_delimiter(StringDelimiter *delimiter) {
-    return delimiter->flags & Raw;
-}
-
 static inline int32_t get_expected_string_end_char(StringDelimiter *delimiter) {
-    if (delimiter->flags & SingleQuote) {
+    if (delimiter->flags & QuoteSingle) {
         return '\'';
     }
-    if (delimiter->flags & DoubleQuote) {
+    if (delimiter->flags & QuoteDouble) {
         return '"';
     }
     return 0;
 }
 
-static inline void set_triple(StringDelimiter *delimiter) {
-    delimiter->flags |= Triple;
-}
-
-static inline void set_raw(StringDelimiter *delimiter) {
-    delimiter->flags |= Raw;
-}
-
 static inline void set_end_character(StringDelimiter *delimiter, int32_t character) {
     switch (character) {
         case '\'':
-            delimiter->flags |= SingleQuote;
+            delimiter->flags |= QuoteSingle;
             break;
         case '"':
-            delimiter->flags |= DoubleQuote;
+            delimiter->flags |= QuoteDouble;
             break;
         default:
             assert(false);
@@ -150,7 +134,7 @@ static inline void handle_quote(TSLexer *lexer, StringDelimiter *delimiter, char
         if (lexer->lookahead == quote) {
             advance(lexer);
             lexer->mark_end(lexer);
-            set_triple(delimiter);
+            delimiter->flags |= QuoteTriple;
         }
     }
 }
@@ -169,7 +153,8 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
         bool has_content = false;
         while (lexer->lookahead) {
             if (lexer->lookahead == '\\') {
-                if (is_raw_string_delimiter(&delimiter)) {
+                const bool is_raw_string_delimiter = delimiter.flags & QuoteRaw;
+                if (is_raw_string_delimiter) {
                     // Step over the backslash.
                     lexer->advance(lexer, false);
                     // Step over any escaped quotes.
@@ -184,7 +169,8 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
                     return has_content;
                 }
             } else if (lexer->lookahead == expected_string_end_delimiter_char) {
-                if (is_multiline_string_delimiter(&delimiter)) {
+                const bool is_multiline_string_delimiter = delimiter.flags & QuoteTriple;
+                if (is_multiline_string_delimiter) {
                     // We're in a multiline string, the delimiter is ''' or """
                     // so we need to scan all 3.
                     lexer->mark_end(lexer);
@@ -340,7 +326,7 @@ bool tree_sitter_gdscript_external_scanner_scan(void *payload, TSLexer *lexer,
         bool has_prefix = true;
 
         switch (lexer->lookahead) {
-            case 'r': set_raw(&delimiter); break;
+            case 'r': delimiter.flags |= QuoteRaw; break;
             case '&': start_symbol = STRING_NAME_START; break;
             case '^': start_symbol = NODE_PATH_START; break;
 
