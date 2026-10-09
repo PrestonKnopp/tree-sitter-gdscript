@@ -6,6 +6,13 @@ GDScript grammar for [tree-sitter][].
 - https://www.npmjs.com/package/tree-sitter-gdscript
 - https://crates.io/crates/tree-sitter-gdscript
 
+
+
+This branch contains a Godot 3 compatible version of the Godot GDScript parser.
+
+This version of the parser still includes Godot 4 features as the parser has historically been built by keeping backward-compatible Godot 3 syntax support during the transition between Godot 3 and 4.
+
+
 ## Latest Godot Commit Syntactically Synced
 
 Note: *Some commits may have been missed.*
