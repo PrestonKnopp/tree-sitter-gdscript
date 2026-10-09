@@ -100,15 +100,6 @@ module.exports = grammar({
     false: ($) => "false",
     null: ($) => "null",
     static_keyword: ($) => "static",
-    remote_keyword: ($) =>
-      choice(
-        "remote",
-        "master",
-        "puppet",
-        "remotesync",
-        "mastersync",
-        "puppetsync",
-      ),
 
     escape_sequence: ($) =>
       token(
@@ -118,9 +109,8 @@ module.exports = grammar({
             /u[a-fA-F\d]{4}/,
             /U[a-fA-F\d]{6}/,
             /x[a-fA-F\d]{2}/,
-            /o\d{3}/,
             /\r\n/,
-            /[^uxo]/,
+            /[^ux]/,
           ),
         ),
       ),
@@ -228,8 +218,6 @@ module.exports = grammar({
         $.class_name_statement,
         $.extends_statement,
         $.expression_statement,
-        $.export_variable_statement,
-        $.onready_variable_statement,
         $.variable_statement,
         $.const_statement,
         $.return_statement,
@@ -310,14 +298,7 @@ module.exports = grammar({
 
     setter: ($) => $._identifier,
     getter: ($) => $._identifier,
-    setget: ($) =>
-      choice(
-        $._setget_body,
-        seq(
-          "setget",
-          choice($.setter, seq($.setter, ",", $.getter), seq(",", $.getter)),
-        ),
-      ),
+    setget: ($) => $._setget_body,
 
     _variable_statement: ($) =>
       seq(
@@ -335,18 +316,7 @@ module.exports = grammar({
         optional(field("setget", $.setget)),
       ),
 
-    variable_statement: ($) =>
-      seq(optional($.remote_keyword), $._variable_statement),
-
-    export_variable_statement: ($) =>
-      seq(
-        "export",
-        optional(field("arguments", $.arguments)),
-        optional(choice("onready", $.remote_keyword)),
-        $._variable_statement,
-      ),
-
-    onready_variable_statement: ($) => seq("onready", $._variable_statement),
+    variable_statement: ($) => $._variable_statement,
 
     const_statement: ($) =>
       seq(
@@ -380,7 +350,6 @@ module.exports = grammar({
         optional($.annotations),
         "class_name",
         field("name", $.name),
-        optional(seq(",", field("icon_path", $.string))),
         field("extends", optional($.extends_statement)),
       ),
 
@@ -873,7 +842,7 @@ module.exports = grammar({
     function_definition: ($) =>
       seq(
         optional($.annotations),
-        optional(choice($.static_keyword, $.remote_keyword)),
+        optional($.static_keyword),
         "func",
         optional(field("name", $.name)),
         field("parameters", $.parameters),

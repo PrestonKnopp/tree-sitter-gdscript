@@ -367,15 +367,18 @@ var children:
 Export Var Stmt can be onready
 ============================================
 
-export(NodePath) onready var path = get_node(path)
+@export var path: NodePath = get_node(path)
 
 ---
 
 (source
-  (export_variable_statement
-    (arguments
-      (identifier))
+  (variable_statement
+    (annotations
+      (annotation
+        (identifier)))
     (name)
+    (type
+      (identifier))
     (call
       (identifier)
       (arguments

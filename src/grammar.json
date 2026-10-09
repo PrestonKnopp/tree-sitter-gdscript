@@ -114,35 +114,6 @@
       "type": "STRING",
       "value": "static"
     },
-    "remote_keyword": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "remote"
-        },
-        {
-          "type": "STRING",
-          "value": "master"
-        },
-        {
-          "type": "STRING",
-          "value": "puppet"
-        },
-        {
-          "type": "STRING",
-          "value": "remotesync"
-        },
-        {
-          "type": "STRING",
-          "value": "mastersync"
-        },
-        {
-          "type": "STRING",
-          "value": "puppetsync"
-        }
-      ]
-    },
     "escape_sequence": {
       "type": "TOKEN",
       "content": {
@@ -169,15 +140,11 @@
               },
               {
                 "type": "PATTERN",
-                "value": "o\\d{3}"
-              },
-              {
-                "type": "PATTERN",
                 "value": "\\r\\n"
               },
               {
                 "type": "PATTERN",
-                "value": "[^uxo]"
+                "value": "[^ux]"
               }
             ]
           }
@@ -827,14 +794,6 @@
         },
         {
           "type": "SYMBOL",
-          "name": "export_variable_statement"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "onready_variable_statement"
-        },
-        {
-          "type": "SYMBOL",
           "name": "variable_statement"
         },
         {
@@ -1324,61 +1283,8 @@
       "name": "_identifier"
     },
     "setget": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_setget_body"
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "setget"
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "setter"
-                },
-                {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "setter"
-                    },
-                    {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "getter"
-                    }
-                  ]
-                },
-                {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "getter"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "type": "SYMBOL",
+      "name": "_setget_body"
     },
     "_variable_statement": {
       "type": "SEQ",
@@ -1467,88 +1373,8 @@
       ]
     },
     "variable_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "remote_keyword"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_variable_statement"
-        }
-      ]
-    },
-    "export_variable_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "export"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "arguments",
-              "content": {
-                "type": "SYMBOL",
-                "name": "arguments"
-              }
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "onready"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "remote_keyword"
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_variable_statement"
-        }
-      ]
-    },
-    "onready_variable_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "onready"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_variable_statement"
-        }
-      ]
+      "type": "SYMBOL",
+      "name": "_variable_statement"
     },
     "const_statement": {
       "type": "SEQ",
@@ -1716,31 +1542,6 @@
             "type": "SYMBOL",
             "name": "name"
           }
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": ","
-                },
-                {
-                  "type": "FIELD",
-                  "name": "icon_path",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "string"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
         },
         {
           "type": "FIELD",
@@ -4648,17 +4449,8 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "static_keyword"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "remote_keyword"
-                }
-              ]
+              "type": "SYMBOL",
+              "name": "static_keyword"
             },
             {
               "type": "BLANK"

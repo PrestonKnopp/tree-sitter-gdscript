@@ -744,19 +744,11 @@
           "named": true
         },
         {
-          "type": "export_variable_statement",
-          "named": true
-        },
-        {
           "type": "expression_statement",
           "named": true
         },
         {
           "type": "extends_statement",
-          "named": true
-        },
-        {
-          "type": "onready_variable_statement",
           "named": true
         },
         {
@@ -916,16 +908,6 @@
         "types": [
           {
             "type": "extends_statement",
-            "named": true
-          }
-        ]
-      },
-      "icon_path": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "string",
             "named": true
           }
         ]
@@ -1284,94 +1266,6 @@
     }
   },
   {
-    "type": "export_variable_statement",
-    "named": true,
-    "fields": {
-      "arguments": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "arguments",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "name",
-            "named": true
-          }
-        ]
-      },
-      "setget": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "setget",
-            "named": true
-          }
-        ]
-      },
-      "static": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "static_keyword",
-            "named": true
-          }
-        ]
-      },
-      "type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "inferred_type",
-            "named": true
-          },
-          {
-            "type": "type",
-            "named": true
-          }
-        ]
-      },
-      "value": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "_expression",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "annotations",
-          "named": true
-        },
-        {
-          "type": "remote_keyword",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "expression_statement",
     "named": true,
     "fields": {},
@@ -1514,10 +1408,6 @@
       "types": [
         {
           "type": "annotations",
-          "named": true
-        },
-        {
-          "type": "remote_keyword",
           "named": true
         },
         {
@@ -1719,80 +1609,6 @@
     }
   },
   {
-    "type": "onready_variable_statement",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "name",
-            "named": true
-          }
-        ]
-      },
-      "setget": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "setget",
-            "named": true
-          }
-        ]
-      },
-      "static": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "static_keyword",
-            "named": true
-          }
-        ]
-      },
-      "type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "inferred_type",
-            "named": true
-          },
-          {
-            "type": "type",
-            "named": true
-          }
-        ]
-      },
-      "value": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "_expression",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "annotations",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pair",
     "named": true,
     "fields": {
@@ -1958,11 +1774,6 @@
     }
   },
   {
-    "type": "remote_keyword",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "return_statement",
     "named": true,
     "fields": {},
@@ -2039,20 +1850,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "getter",
-          "named": true
-        },
-        {
-          "type": "setter",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -2133,19 +1930,11 @@
           "named": true
         },
         {
-          "type": "export_variable_statement",
-          "named": true
-        },
-        {
           "type": "expression_statement",
           "named": true
         },
         {
           "type": "extends_statement",
-          "named": true
-        },
-        {
-          "type": "onready_variable_statement",
           "named": true
         },
         {
@@ -2437,15 +2226,11 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
           "type": "annotations",
-          "named": true
-        },
-        {
-          "type": "remote_keyword",
           "named": true
         }
       ]
@@ -2741,10 +2526,6 @@
     "named": true
   },
   {
-    "type": "export",
-    "named": false
-  },
-  {
     "type": "extends",
     "named": false
   },
@@ -2789,14 +2570,6 @@
     "named": true
   },
   {
-    "type": "master",
-    "named": false
-  },
-  {
-    "type": "mastersync",
-    "named": false
-  },
-  {
     "type": "match",
     "named": false
   },
@@ -2809,23 +2582,11 @@
     "named": true
   },
   {
-    "type": "onready",
-    "named": false
-  },
-  {
     "type": "or",
     "named": false
   },
   {
     "type": "pass",
-    "named": false
-  },
-  {
-    "type": "puppet",
-    "named": false
-  },
-  {
-    "type": "puppetsync",
     "named": false
   },
   {
@@ -2837,23 +2598,11 @@
     "named": true
   },
   {
-    "type": "remote",
-    "named": false
-  },
-  {
-    "type": "remotesync",
-    "named": false
-  },
-  {
     "type": "return",
     "named": false
   },
   {
     "type": "set",
-    "named": false
-  },
-  {
-    "type": "setget",
     "named": false
   },
   {

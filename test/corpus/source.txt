@@ -320,57 +320,6 @@ x **= 2.0
     (augmented_assignment (identifier) (float))))
 
 =====================================
-Variables Remote
-=====================================
-
-remote var hello
-master var hello
-puppet var hello
-remotesync var hello
-mastersync var hello
-puppetsync var hello
-
----
-
-(source
-  (variable_statement (remote_keyword) (name))
-  (variable_statement (remote_keyword) (name))
-  (variable_statement (remote_keyword) (name))
-  (variable_statement (remote_keyword) (name))
-  (variable_statement (remote_keyword) (name))
-  (variable_statement (remote_keyword) (name)))
-
-=====================================
-Variables Export
-=====================================
-
-export var a
-export var a = "a"
-export remote var a
-
-export(Type) var a
-export(Type) var a = "a"
-export(Type) remote var a
-
-export(Type, Param) var a
-export(Type, "Param") var a = "a"
-
-export(Type,) var a
-
----
-
-(source
-  (export_variable_statement (name))
-  (export_variable_statement (name) (string))
-  (export_variable_statement (remote_keyword) (name))
-  (export_variable_statement (arguments (identifier)) (name))
-  (export_variable_statement (arguments (identifier)) (name) (string))
-  (export_variable_statement (arguments (identifier)) (remote_keyword) (name))
-  (export_variable_statement (arguments (identifier) (identifier)) (name))
-  (export_variable_statement (arguments (identifier) (string)) (name) (string))
-  (export_variable_statement (arguments (identifier)) (name)))
-
-=====================================
 Variables Annotations
 =====================================
 
@@ -406,23 +355,7 @@ var a := 0
     (integer)))
 
 =====================================
-Variables SetGet
-=====================================
-
-var x setget setter,getter
-var x setget setter
-var x setget ,getter
-
----
-
-(source
-  (variable_statement (name) (setget (setter) (getter)))
-  (variable_statement (name) (setget (setter)))
-  (variable_statement (name) (setget (getter)))
-)
-
-=====================================
-Variables SetGet V2
+Variables with setter and getter
 =====================================
 
 var x: int:
@@ -528,19 +461,6 @@ var my_prop:
       (setter))))
 
 =====================================
-Variables Onready
-=====================================
-
-onready var hello
-onready var hello: World
-
----
-
-(source
-  (onready_variable_statement (name))
-  (onready_variable_statement (name) (type (identifier))))
-
-=====================================
 Variables Const
 =====================================
 
@@ -625,33 +545,6 @@ func hello(typed_default_param: Type="string") -> Type:
   (function_definition (name) (parameters (typed_default_parameter (identifier) (type (identifier)) (string)))
     (body (pass_statement)))
   (function_definition (name) (parameters (typed_default_parameter (identifier) (type (identifier)) (string))) (type (identifier))
-    (body (pass_statement))))
-
-=====================================
-Functions Remote
-=====================================
-
-remote func hello(): pass
-master func hello(): pass
-puppet func hello(): pass
-remotesync func hello(): pass
-mastersync func hello(): pass
-puppetsync func hello(): pass
-
----
-
-(source
-  (function_definition (remote_keyword) (name) (parameters)
-    (body (pass_statement)))
-  (function_definition (remote_keyword) (name) (parameters)
-    (body (pass_statement)))
-  (function_definition (remote_keyword) (name) (parameters)
-    (body (pass_statement)))
-  (function_definition (remote_keyword) (name) (parameters)
-    (body (pass_statement)))
-  (function_definition (remote_keyword) (name) (parameters)
-    (body (pass_statement)))
-  (function_definition (remote_keyword) (name) (parameters)
     (body (pass_statement))))
 
 =====================================
@@ -923,19 +816,6 @@ class State:
             (identifier)
             arguments: (arguments (string))))
         name: (name)))))
-
-=====================================
-Class Name
-=====================================
-
-class_name Name
-class_name Name, "icon"
-
----
-
-(source
-  (class_name_statement (name))
-  (class_name_statement (name) (string)))
 
 =====================================
 Tool and Extend
