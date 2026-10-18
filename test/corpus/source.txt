@@ -200,6 +200,8 @@ $ "node/path"
 var x = $"node/path"
 
 %node
+%node/%node
+%node/$node
 
 ---
 
@@ -209,7 +211,9 @@ var x = $"node/path"
   (expression_statement (get_node))
   (expression_statement (get_node))
   (variable_statement (name) (get_node))
-  (expression_statement (get_node)))
+  (expression_statement (get_node))
+  (expression_statement (get_node))
+  (expression_statement (get_node (ERROR))))
 
 =====================================
 Await Expressions
