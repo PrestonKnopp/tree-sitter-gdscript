@@ -167,7 +167,7 @@ module.exports = grammar({
             "%",
           ),
           $._node_path_segment,
-          repeat(seq("/", $._node_path_segment)),
+          repeat(seq("/", optional("%"), $._node_path_segment)),
         ),
       ),
 
