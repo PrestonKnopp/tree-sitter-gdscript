@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "gdscript",
   "word": "_identifier",
   "rules": {
@@ -15,8 +16,13 @@
       "flags": "u"
     },
     "identifier": {
-      "type": "SYMBOL",
-      "name": "_identifier"
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_identifier"
+      },
+      "named": true,
+      "value": "identifier"
     },
     "name": {
       "type": "SYMBOL",
@@ -4858,7 +4864,9 @@
   ],
   "inline": [
     "_simple_statement",
-    "_compound_statement"
+    "_compound_statement",
+    "_rhs_expression",
+    "identifier"
   ],
   "supertypes": [
     "_compound_statement",

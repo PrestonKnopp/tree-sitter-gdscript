@@ -60,7 +60,12 @@ module.exports = grammar({
     $._body_end,
   ],
 
-  inline: ($) => [$._simple_statement, $._compound_statement],
+  inline: ($) => [
+    $._simple_statement,
+    $._compound_statement,
+    $._rhs_expression,
+    $.identifier,
+  ],
 
   supertypes: ($) => [
     $._compound_statement,
@@ -85,7 +90,7 @@ module.exports = grammar({
     // category"
     _identifier: ($) => /[_\p{XID_Start}][\p{XID_Continue}]*/u,
     // any "symbol"
-    identifier: ($) => $._identifier,
+    identifier: ($) => alias($._identifier, $.identifier),
     // named symbol of a statement
     // such as a function name or class name
     name: ($) => $._identifier,
