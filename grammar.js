@@ -218,7 +218,7 @@ module.exports = grammar({
 
     _simple_statement: ($) =>
       choice(
-        $._annotations,
+        repeat1($.annotation),
         $.signal_statement,
         $.class_name_statement,
         $.extends_statement,
@@ -246,8 +246,7 @@ module.exports = grammar({
 
     // The syntax tree looks better when annotations are grouped in a container
     // node in contexts like variable_statement and function_definition.
-    _annotations: ($) => repeat1($.annotation),
-    annotations: ($) => $._annotations,
+    annotations: ($) => repeat1($.annotation),
 
     // -- Variables
 
@@ -275,16 +274,15 @@ module.exports = grammar({
         field("body", $.body),
       ),
 
-    _set_assign: ($) => seq("set", "=", field("set", $.setter)),
-    _get_assign: ($) => seq("get", "=", field("get", $.getter)),
-
     _setget_assign: ($) =>
       choice(
-        seq($._set_assign, optional(seq(",", $._get_assign))),
-        seq($._get_assign, optional(seq(",", $._set_assign))),
+        seq(seq("set", "=", field("set", $.setter)), optional(seq(",", seq("get", "=", field("get", $.getter))))),
+        seq(seq("get", "=", field("get", $.getter)), optional(seq(",", seq("set", "=", field("set", $.setter))))),
       ),
 
-    _setget_body: ($) =>
+    setter: ($) => $._identifier,
+    getter: ($) => $._identifier,
+    setget: ($) =>
       seq(
         ":",
         choice(
@@ -301,11 +299,7 @@ module.exports = grammar({
         ),
       ),
 
-    setter: ($) => $._identifier,
-    getter: ($) => $._identifier,
-    setget: ($) => $._setget_body,
-
-    _variable_statement: ($) =>
+    variable_statement: ($) =>
       seq(
         optional($.annotations),
         optional(field("static", $.static_keyword)),
@@ -320,8 +314,6 @@ module.exports = grammar({
         ),
         optional(field("setget", $.setget)),
       ),
-
-    variable_statement: ($) => $._variable_statement,
 
     const_statement: ($) =>
       seq(
