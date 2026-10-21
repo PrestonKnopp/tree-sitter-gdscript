@@ -401,7 +401,7 @@ void *tree_sitter_gdscript_external_scanner_create() {
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
     _Static_assert(sizeof(StringDelimiter) == sizeof(char), "");
 #else
-    assert(sizeof(Delimiter) == sizeof(char));
+    assert(sizeof(StringDelimiter) == sizeof(char));
 #endif
     Scanner *scanner = calloc(1, sizeof(Scanner));
     if (!scanner) {
